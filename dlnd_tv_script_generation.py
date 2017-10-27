@@ -137,7 +137,7 @@ tests.test_tokenize(token_lookup)
 # ## Preprocess all the data and save it
 # Running the code cell below will preprocess all the data and save it to file.
 
-# In[6]:
+# In[4]:
 
 
 """
@@ -150,7 +150,7 @@ helper.preprocess_and_save_data(data_dir, token_lookup, create_lookup_tables)
 # # Check Point
 # This is your first checkpoint. If you ever decide to come back to this notebook or have to restart the notebook, you can start from here. The preprocessed data has been saved to disk.
 
-# In[4]:
+# In[5]:
 
 
 """
@@ -178,7 +178,7 @@ int_text, vocab_to_int, int_to_vocab, token_dict = helper.load_preprocess()
 # 
 # ### Check the Version of TensorFlow and Access to GPU
 
-# In[5]:
+# In[6]:
 
 
 """
@@ -207,7 +207,7 @@ else:
 # 
 # Return the placeholders in the following tuple `(Input, Targets, LearningRate)`
 
-# In[6]:
+# In[7]:
 
 
 def get_inputs():
@@ -236,7 +236,7 @@ tests.test_get_inputs(get_inputs)
 # 
 # Return the cell and initial state in the following tuple `(Cell, InitialState)`
 
-# In[7]:
+# In[31]:
 
 
 def get_init_cell(batch_size, rnn_size):
@@ -250,16 +250,17 @@ def get_init_cell(batch_size, rnn_size):
     lstm_laysers = 2
     keep_prob = 0.5
     
-    lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
-    drop = tf.contrib.rnn.DropoutWrapper(lstm, output_keep_prob=keep_prob)
-    cell = tf.contrib.rnn.MultiRNNCell([drop] * lstm_laysers)
+#     lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
+#     drop = tf.contrib.rnn.DropoutWrapper(lstm, output_keep_prob=keep_prob)
+#     cell = tf.contrib.rnn.MultiRNNCell([drop] * lstm_laysers)
+#     cell = tf.contrib.rnn.MultiRNNCell([lstm for _ in range(lstm_laysers)])
     
 #     lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size, forget_bias=0.0, state_is_tuple=True, reuse=tf.get_variable_scope().reuse)
     
-#     def make_lstm_cell(rnn_size):
-#         lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
-#         return lstm
-#     cell = tf.contrib.rnn.MultiRNNCell([make_lstm_cell(rnn_size) for _ in range(lstm_laysers)])
+    def make_lstm_cell(rnn_size):
+        lstm = tf.contrib.rnn.BasicLSTMCell(rnn_size)
+        return lstm
+    cell = tf.contrib.rnn.MultiRNNCell([make_lstm_cell(rnn_size) for _ in range(lstm_laysers)])
     
     
     initial_state = tf.identity(cell.zero_state(batch_size, tf.float32), name='initial_state')
@@ -276,7 +277,7 @@ tests.test_get_init_cell(get_init_cell)
 # ### Word Embedding
 # Apply embedding to `input_data` using TensorFlow.  Return the embedded sequence.
 
-# In[8]:
+# In[32]:
 
 
 def get_embed(input_data, vocab_size, embed_dim):
@@ -307,7 +308,7 @@ tests.test_get_embed(get_embed)
 # 
 # Return the outputs and final_state state in the following tuple `(Outputs, FinalState)` 
 
-# In[9]:
+# In[33]:
 
 
 def build_rnn(cell, inputs):
@@ -338,7 +339,7 @@ tests.test_build_rnn(build_rnn)
 # 
 # Return the logits and final state in the following tuple (Logits, FinalState) 
 
-# In[10]:
+# In[34]:
 
 
 def build_nn(cell, rnn_size, input_data, vocab_size, embed_dim):
@@ -393,7 +394,7 @@ tests.test_build_nn(build_nn)
 # ]
 # ```
 
-# In[81]:
+# In[35]:
 
 
 def get_batches(int_text, batch_size, seq_length):
@@ -461,11 +462,11 @@ tests.test_get_batches(get_batches)
 # - Set `learning_rate` to the learning rate.
 # - Set `show_every_n_batches` to the number of batches the neural network should print progress.
 
-# In[98]:
+# In[36]:
 
 
 # Number of Epochs
-num_epochs = 200
+num_epochs = 120
 # Batch Size
 batch_size = 128
 # RNN Size
@@ -488,7 +489,7 @@ save_dir = './save'
 # ### Build the Graph
 # Build the graph using the neural network you implemented.
 
-# In[99]:
+# In[37]:
 
 
 """
@@ -525,7 +526,7 @@ with train_graph.as_default():
 # ## Train
 # Train the neural network on the preprocessed data.  If you have a hard time getting a good loss, check the [forms](https://discussions.udacity.com/) to see if anyone is having the same problem.
 
-# In[100]:
+# In[38]:
 
 
 """
@@ -564,7 +565,7 @@ with tf.Session(graph=train_graph) as sess:
 # ## Save Parameters
 # Save `seq_length` and `save_dir` for generating a new TV script.
 
-# In[101]:
+# In[39]:
 
 
 """
@@ -576,7 +577,7 @@ helper.save_params((seq_length, save_dir))
 
 # # Checkpoint
 
-# In[102]:
+# In[40]:
 
 
 """
@@ -601,7 +602,7 @@ seq_length, load_dir = helper.load_params()
 # 
 # Return the tensors in the following tuple `(InputTensor, InitialStateTensor, FinalStateTensor, ProbsTensor)` 
 
-# In[103]:
+# In[41]:
 
 
 def get_tensors(loaded_graph):
@@ -628,7 +629,7 @@ tests.test_get_tensors(get_tensors)
 # ### Choose Word
 # Implement the `pick_word()` function to select the next word using `probabilities`.
 
-# In[107]:
+# In[43]:
 
 
 def pick_word(probabilities, int_to_vocab):
@@ -655,7 +656,7 @@ tests.test_pick_word(pick_word)
 # ## Generate TV Script
 # This will generate the TV script for you.  Set `gen_length` to the length of TV script you want to generate.
 
-# In[108]:
+# In[44]:
 
 
 gen_length = 200
